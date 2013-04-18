@@ -4,13 +4,13 @@ module Jaspersoft
 
   module Configuration
 
-    VALID_OPTIONS_KEYS = [:username, :password, :host, :port].freeze
+    VALID_OPTIONS_KEYS = [:username, :password, :endpoint, :adapter].freeze
     VALID_CONFIG_KEYS = VALID_OPTIONS_KEYS
 
     DEFAULT_USERNAME = nil
     DEFAULT_PASSWORD = nil
-    DEFAULT_HOST = nil
-    DEFAULT_PORT = nil
+    DEFAULT_ENDPOINT = nil
+    DEFAULT_ADAPTER = :net_http
 
     attr_accessor *VALID_CONFIG_KEYS
 
@@ -25,8 +25,8 @@ module Jaspersoft
     def reset!
       self.username = DEFAULT_USERNAME
       self.password = DEFAULT_PASSWORD
-      self.host = DEFAULT_HOST
-      self.port = DEFAULT_PORT
+      self.endpoint = DEFAULT_ENDPOINT
+      self.adapter = DEFAULT_ADAPTER
     end
 
     def options

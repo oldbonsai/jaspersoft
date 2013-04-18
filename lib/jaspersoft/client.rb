@@ -13,6 +13,17 @@ module Jaspersoft
       end
     end
 
+    def login(options)
+      params = prepare_request_params(options)
+
+    end
+
+    private
+
+    def prepare_request_params(options)
+      
+    end
+
   end
 
 end

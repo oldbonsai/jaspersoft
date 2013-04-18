@@ -51,8 +51,8 @@ describe Jaspersoft::Client do
         @config = {
           username: 'bob',
           password: 'mypassword',
-          host: 'localhost',
-          port: '8080'
+          endpoint: 'localhost',
+          adapter: 'net_http'
         }
       end
 
