@@ -21,9 +21,13 @@ module Jaspersoft
         case method.to_sym
         when :get 
           request.url(path, params)
+          request.headers['Cookie'] = options[:auth_cookie] if options[:auth_cookie]
+          request.headers['accept'] = 'application/json'
         when :post
           request.path = path
           request.body = params unless params.empty?
+          request.headers['Cookie'] = options[:auth_cookie] if options[:auth_cookie]
+          request.headers['accept'] = 'application/json'
         end
       end
 
