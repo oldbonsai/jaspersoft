@@ -52,7 +52,9 @@ describe Jaspersoft::Client do
           username: 'bob',
           password: 'mypassword',
           endpoint: 'localhost',
-          adapter: 'net_http'
+          adapter: 'net_http',
+          report_file_type: 'pdf',
+          enterprise_server: false,
         }
       end
 
