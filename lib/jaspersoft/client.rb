@@ -18,16 +18,18 @@ module Jaspersoft
       Configuration::VALID_CONFIG_KEYS.each do |key|
         send("#{key}=", merged_options[key])
       end
+      
+      login
     end
 
     # Logs in via simple authentication, creates and saves cookie for later requests
-    def login()
+    def login
       params = {
         'j_username' => self.username,
         'j_password' => self.password
       }
       response = post("#{endpoint_url}/rest/login", params, {raw: true})
-      @auth_cookie = response['set-cookie']#.split(';')[0]
+      @auth_cookie = response['set-cookie']
     end
 
     # Gets resources for specific path, not recursive, but could be
@@ -70,8 +72,6 @@ module Jaspersoft
       path = path[1..-1] if path[0] == "/"
       path
     end
-
-
 
   end
 

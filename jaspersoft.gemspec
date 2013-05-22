@@ -2,13 +2,12 @@
 lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'jaspersoft/version'
-require 'psych'
 
 Gem::Specification.new do |spec|
   spec.name          = "jaspersoft"
   spec.version       = Jaspersoft::VERSION
-  spec.authors       = ["Peter Cunningham"]
-  spec.email         = ["peter@refreshmedia.com"]
+  spec.authors       = ["Peter Cunningham", "Darin Richardson"]
+  spec.email         = ["peter@refreshmedia.com", "darin@refreshmedia.com"]
   spec.description   = %q{Access and process Jaspersoft Reports.}
   spec.summary       = %q{Access list of available reports and process/view available reports.}
   spec.homepage      = ""
@@ -21,7 +20,7 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency "faraday"
   spec.add_dependency "nokogiri"
-  spec.add_dependency "active_support"
+  spec.add_dependency "activesupport"
   spec.add_development_dependency "bundler", "~> 1.3"
   spec.add_development_dependency "rake"
   spec.add_development_dependency "rspec"

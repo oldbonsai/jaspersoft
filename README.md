@@ -1,6 +1,6 @@
 # Jaspersoft
 
-TODO: Write a gem description
+A Ruby implementation of the v2 REST API for Jaspersoft Server
 
 ## Installation
 
