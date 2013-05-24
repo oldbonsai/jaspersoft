@@ -22,23 +22,13 @@ module Jaspersoft
       login
     end
 
-    # Logs in via simple authentication, creates and saves cookie for later requests
-    def login
-      params = {
-        'j_username' => self.username,
-        'j_password' => self.password
-      }
-      response = post("#{endpoint_url}/rest/login", params, {raw: true})
-      @auth_cookie = response['set-cookie']
-    end
-
     # Gets resources for specific path, not recursive, but could be
     # Returns resource_descriptor hash generated from response if exists
     def get_resources(path='', params={})
       response = get("#{endpoint_url}/rest/resources/#{check_and_fix_path(path)}", params, {auth_cookie: @auth_cookie})
       nokogiri_reponse = Nokogiri::XML(response)
       hash = Hash.from_xml(nokogiri_reponse.to_s)
-      hash['resourceDescriptors']['resourceDescriptor']
+      (hash and hash['resourceDescriptors']) ? hash['resourceDescriptors']['resourceDescriptor'] : nil
     end
 
     # Get a list of all reports
@@ -62,6 +52,18 @@ module Jaspersoft
     end
 
     private
+
+    # Logs in via simple authentication, creates and saves cookie for later requests
+    def login
+      params = {
+        'j_username' => self.username,
+        'j_password' => self.password
+      }
+      response = post("#{endpoint_url}/rest/login", params, {raw: true})
+      @auth_cookie = response['set-cookie']
+
+      raise Jaspersoft::AuthenticationError, "Unable to authenticate with provided credentials" if @auth_cookie == nil
+    end
 
     def endpoint_url
       "#{endpoint}/jasperserver#{enterprise_server ? "-pro" : ""}"

@@ -1,6 +1,7 @@
 require "jaspersoft/version"
 require "jaspersoft/configuration"
 require "jaspersoft/client"
+require "jaspersoft/error"
 
 module Jaspersoft
   extend Configuration
