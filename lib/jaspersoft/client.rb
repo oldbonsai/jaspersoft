@@ -25,7 +25,7 @@ module Jaspersoft
     # Gets resources for specific path, not recursive, but could be
     # Returns resource_descriptor hash generated from response if exists
     def get_resources(path='', params={})
-      response = get("#{endpoint_url}/rest/resources/#{check_and_fix_path(path)}", params, {auth_cookie: @auth_cookie})
+      response = get_response_or_login("#{endpoint_url}/rest/resources/#{check_and_fix_path(path)}", params, {auth_cookie: @auth_cookie})
       nokogiri_reponse = Nokogiri::XML(response)
       hash = Hash.from_xml(nokogiri_reponse.to_s)
       (hash and hash['resourceDescriptors']) ? hash['resourceDescriptors']['resourceDescriptor'] : nil
@@ -41,13 +41,13 @@ module Jaspersoft
     # Returns raw data for report based on file_type
     # Not sure what happens on incorrect path/report
     def run_report(path, params={}, file_type=report_file_type)
-      response = get("#{endpoint_url}/rest_v2/reports/#{check_and_fix_path(path)}.#{file_type}", params, {auth_cookie: @auth_cookie})
+      response = get_response_or_login("#{endpoint_url}/rest_v2/reports/#{check_and_fix_path(path)}.#{file_type}", params, {auth_cookie: @auth_cookie})
     end
 
     # JasperReports Server Web Services Guide: 3.3.1
     # Returns Input Control JSON object if exists? else nil
     def get_report_input_controls(path, params={})
-      response = get("#{endpoint_url}/rest_v2/reports/#{check_and_fix_path(path)}/inputControls", params, {auth_cookie: @auth_cookie, accept: "application/json"})
+      response = get_response_or_login("#{endpoint_url}/rest_v2/reports/#{check_and_fix_path(path)}/inputControls", params, {auth_cookie: @auth_cookie, accept: "application/json"})
       ActiveSupport::JSON.decode(response)["inputControl"] unless response.nil?
     end
 
@@ -63,6 +63,15 @@ module Jaspersoft
       @auth_cookie = response['set-cookie']
 
       raise Jaspersoft::AuthenticationError, "Unable to authenticate with provided credentials" if @auth_cookie == nil
+    end
+    
+    def get_response_or_login(path, params, options)
+      response = get(path, params, options)
+      if response == "Access is denied"
+        login
+        response = get(path, params, options)
+      end
+      response
     end
 
     def endpoint_url
