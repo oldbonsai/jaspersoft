@@ -33,11 +33,11 @@ module Jaspersoft
       self.report_file_type = DEFAULT_REPORT_FILE_TYPE
       self.enterprise_server = DEFAULT_ENTERPRISE_SERVER
     end
-
+    
     def options
       Hash[ * VALID_CONFIG_KEYS.map { |key| [key, send(key)] }.flatten ]
     end
-
+    
   end
 
 end

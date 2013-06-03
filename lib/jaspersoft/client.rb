@@ -3,6 +3,7 @@ require 'jaspersoft/connection'
 require 'jaspersoft/request'
 require 'active_support/core_ext/hash/conversions'
 require 'nokogiri'
+require 'base64'
 
 module Jaspersoft
   
@@ -18,14 +19,24 @@ module Jaspersoft
       Configuration::VALID_CONFIG_KEYS.each do |key|
         send("#{key}=", merged_options[key])
       end
-      
-      login
+    end
+    
+    def username=(username)
+      @username = username
+      encode_authorization
+      @username
+    end
+
+    def password=(password)
+      @password = password
+      encode_authorization
+      @password
     end
 
     # Gets resources for specific path, not recursive, but could be
     # Returns resource_descriptor hash generated from response if exists
     def get_resources(path='', params={})
-      response = get_response_or_login("#{endpoint_url}/rest/resources/#{check_and_fix_path(path)}", params, {auth_cookie: @auth_cookie})
+      response = get("#{endpoint_url}/rest/resources/#{check_and_fix_path(path)}", params, {authorization: @authorization})
       nokogiri_reponse = Nokogiri::XML(response)
       hash = Hash.from_xml(nokogiri_reponse.to_s)
       (hash and hash['resourceDescriptors']) ? hash['resourceDescriptors']['resourceDescriptor'] : nil
@@ -41,39 +52,22 @@ module Jaspersoft
     # Returns raw data for report based on file_type
     # Not sure what happens on incorrect path/report
     def run_report(path, params={}, file_type=report_file_type)
-      response = get_response_or_login("#{endpoint_url}/rest_v2/reports/#{check_and_fix_path(path)}.#{file_type}", params, {auth_cookie: @auth_cookie})
+      response = get("#{endpoint_url}/rest_v2/reports/#{check_and_fix_path(path)}.#{file_type}", params, {authorization: @authorization})
     end
 
     # JasperReports Server Web Services Guide: 3.3.1
     # Returns Input Control JSON object if exists? else nil
     def get_report_input_controls(path, params={})
-      response = get_response_or_login("#{endpoint_url}/rest_v2/reports/#{check_and_fix_path(path)}/inputControls", params, {auth_cookie: @auth_cookie, accept: "application/json"})
+      response = get("#{endpoint_url}/rest_v2/reports/#{check_and_fix_path(path)}/inputControls", params, {authorization: @authorization, accept: "application/json"})
       ActiveSupport::JSON.decode(response)["inputControl"] unless response.nil?
     end
-
+    
     private
 
-    # Logs in via simple authentication, creates and saves cookie for later requests
-    def login
-      params = {
-        'j_username' => self.username,
-        'j_password' => self.password
-      }
-      response = post("#{endpoint_url}/rest/login", params, {raw: true})
-      @auth_cookie = response['set-cookie']
-
-      raise Jaspersoft::AuthenticationError, "Unable to authenticate with provided credentials" if @auth_cookie == nil
+    def encode_authorization
+      @authorization = "Basic #{::Base64.strict_encode64("#{self.username}:#{self.password}")}"
     end
     
-    def get_response_or_login(path, params, options)
-      response = get(path, params, options)
-      if response == "Access is denied"
-        login
-        response = get(path, params, options)
-      end
-      response
-    end
-
     def endpoint_url
       "#{endpoint}/jasperserver#{enterprise_server ? "-pro" : ""}"
     end

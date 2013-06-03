@@ -26,8 +26,8 @@ module Jaspersoft
           request.body = params unless params.empty?
         else
         end
-        request.headers['Cookie'] = options[:auth_cookie] if options[:auth_cookie]
-        request.headers['accept'] = options[:accept] if options[:accept]
+        request.headers['Authorization'] = options[:authorization] if options[:authorization]
+        request.headers['accept']        = options[:accept] if options[:accept]
       end
 
       options[:raw] ? response : response.body

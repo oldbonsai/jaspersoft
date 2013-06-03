@@ -5,7 +5,6 @@ require "jaspersoft/error"
 
 module Jaspersoft
   extend Configuration
-  
 
   def new(options={})
     Client.new(options)
