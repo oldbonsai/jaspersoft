@@ -4,7 +4,7 @@ module Jaspersoft
 
   module Configuration
 
-    VALID_OPTIONS_KEYS = [ :username, :password, :endpoint, :adapter, :media_type, :report_file_type, :enterprise_server, :user_agent ].freeze
+    VALID_OPTIONS_KEYS = [ :username, :password, :endpoint, :adapter, :media_type, :report_file_type, :enterprise_server, :user_agent, :session ].freeze
     VALID_CONFIG_KEYS = VALID_OPTIONS_KEYS
     
     USER_AGENT = "Jaspersoft Ruby Gem #{Jaspersoft::VERSION}".freeze
@@ -38,10 +38,16 @@ module Jaspersoft
       self.enterprise_server = DEFAULT_ENTERPRISE_SERVER
 
       self.user_agent = USER_AGENT
+      self.session = nil
     end
     
     def options
       Hash[ * VALID_CONFIG_KEYS.map { |key| [key, send(key)] }.flatten ]
+    end
+    
+    def endpoint_url(options = {})
+      options = { v2: true }.merge(options)
+      "#{ endpoint }/jasperserver#{ enterprise_server ? "-pro" : "" }/rest#{ "_v2" if options[:v2] }"
     end
     
   end

@@ -1,16 +1,20 @@
 module Jaspersoft
   class Client
-    
     module Resources
       
-      # Gets resources for specific path, not recursive, but could be
-      # Returns resource_descriptor hash generated from response if exists
-      def resources(params = {})
-        response = get "#{endpoint_url}/resources", params
+      # Get a list of all resources under an optional path path
+      #
+      # @option options [String] :path The path to search in
+      # @option options [Boolean] :recursive Search recursively into subfolders for additional resources. Can be taxing/time consuming if true and searching the root
+      # @return [Array<Sawyer::Resource>] Collection of resources available for the provided path
+      def resources(path = nil, options = {})
+        options = { recursive: false }.merge(options)
+        options[:folderUri] = normalize_path_slashes path, leading_slash: true, trailing_slash: false if path
+        
+        response = get "#{endpoint_url}/resources", options
         response.resourceLookup
       end
       
     end
-    
   end
 end
