@@ -7,19 +7,21 @@ module Jaspersoft
       # @param reports [String] A path to a report folder
       # @option opts [Boolean] :recursive Search the folder recursively
       # @return [Array<Sawyer::Resource>] An array of report resources
-      def reports(path = nil, options = {})
-        options = { recursive: true }.merge(options)
-        options[:type] = 'reportUnit'
+      def reports(path = nil, params = {}, options = {})
+        params = { recursive: true }.merge(params)
+        params[:type] = 'reportUnit'
         
-        resources(path, options)
+        resources(path, params, options)
       end
       
       # Get a single report object
       # 
       # @param path [String] A full path to a specific report
       # @return [<Sawyer::Resource>] A sinlge report resource
-      def report(path, options = {})
-        get "#{endpoint_url}/resources#{normalize_path_slashes(path, leading_slash: true)}", { content_type: "application/repository.reportUnit+json" }.merge(options)
+      def report(path, params = {}, options = {})
+        params = { content_type: "application/repository.reportUnit+json" }.merge(params)
+        
+        get "#{endpoint_url}/resources#{normalize_path_slashes(path, leading_slash: true)}", params, options
       end
       alias :find_report :report
       
@@ -29,15 +31,15 @@ module Jaspersoft
       # @option opts [String] :file_type
       # @option opts [Hash] :params A hash of key/value pairs matching with the input controls defined for the report
       # @return [String] A request ID
-      def enqueue_report(path, options = {})
-        options = { file_type: report_file_type.to_s, params: {} }.merge(options)
-        options[:outputFormat] = options.delete(:file_type)
-        options[:parameters] = convert_report_params options.delete(:params)
-        options[:reportUnitUri] = path
-        options[:async] = true
-        options[:interactive] = false
+      def enqueue_report(path, params = {}, options = {})
+        params = { file_type: report_file_type.to_s, params: {} }.merge(params)
+        params[:outputFormat] = params.delete(:file_type)
+        params[:parameters] = convert_report_params params.delete(:params)
+        params[:reportUnitUri] = path
+        params[:async] = true
+        params[:interactive] = false
         
-        response = post "#{endpoint_url}/reportExecutions", options
+        response = post "#{endpoint_url}/reportExecutions", params, options
         if response && response.requestId
           return response.requestId
         else
@@ -50,12 +52,14 @@ module Jaspersoft
       # 
       # @param request_id [String] A report ID, usually in the form of #####-#####-## (with varying digit counts in each group)
       # @return [String] The execution status of the report
-      def poll_report(request_id, options = {})
-        response = get "#{endpoint_url}/reportExecutions/#{request_id}/status/", options
-        if response && response.value
-          return response.value
+      def poll_report(request_id, params = {}, options = {})
+        options[:raw_response] = true
+        
+        response = get "#{endpoint_url}/reportExecutions/#{request_id}/status/", params, options
+        if response.status == 200
+          return response.data.value
         else
-          return false # TODO: Error handling
+          return "not found"
         end
       end
       alias :poll :poll_report
