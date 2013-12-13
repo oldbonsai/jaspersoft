@@ -22,6 +22,10 @@ module Jaspersoft
           options[:headers][:accept] = accept
         end
       end
+      if options[:session] && options[:session] != session
+        session = options[:session]
+        authenticate_with_session
+      end
       @last_response = response = agent.call(method, URI.encode(path.to_s), params, options)
       (options[:raw_response]) ? response : response.data
     end
