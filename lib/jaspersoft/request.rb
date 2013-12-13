@@ -23,7 +23,7 @@ module Jaspersoft
         end
       end
       if options[:session] && options[:session] != session
-        session = options[:session]
+        self.session = options[:session]
         authenticate_with_session
       end
       @last_response = response = agent.call(method, URI.encode(path.to_s), params, options)
