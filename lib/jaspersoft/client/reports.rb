@@ -69,10 +69,10 @@ module Jaspersoft
       # @param request_id [String] A report ID, usually in the form of #####-#####-## (with varying digit counts in each group)
       # @return [File] Raw binary of the first format available
       def download_report(request_id, params = {}, options = {})
-        report_response = get "#{endpoint_url}/reportExecutions/#{request_id}"
+        report_response = get "#{endpoint_url}/reportExecutions/#{request_id}", params, options
         if report_response.status == "ready"
           format = report_response.exports[0].id # TODO: Accept options for which format to grab, verify it's available
-          get "#{endpoint_url}/reportExecutions/#{request_id}/exports/#{format}/outputResource"
+          get "#{endpoint_url}/reportExecutions/#{request_id}/exports/#{format}/outputResource", params, options
         else
           return false
         end
